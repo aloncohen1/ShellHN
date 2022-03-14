@@ -34,27 +34,27 @@ def get_terms_bow(tech_df):
     return bow_df
 
 
-def calc_term_prob(df):
+def calc_terms_dfs(df):
 
     """
 
-    :param df:
+    :param df: original df with terms columns
     :return:
     """
 
     logging.info('calc_term_prob - START')
 
-    article_count_df = df.groupby('month')[TECH_LIST].count()
+    articles_count_df = df.groupby('month')[TECH_LIST].count()
     terms_count_df = df.groupby('month')[TECH_LIST].sum()
-    terms_share_df = terms_count_df / article_count_df
-    prob_df = 1.0 - (1.0-terms_share_df).pow(terms_count_df)
+    terms_share_df = terms_count_df / articles_count_df
+    prob_df = 1.0 - (1.0-terms_share_df).pow(articles_count_df)
 
     logging.info('calc_term_prob - END')
 
-    return prob_df
+    return articles_count_df, terms_count_df, terms_share_df, prob_df
 
 
-def main(import_path='/Users/aloncohen/Downloads/Home Assignment Data Scientist/hacker_news_data.json'):
+def main(import_path):
 
     """
     This code will predict the probability of a technology to appear in HN
@@ -65,7 +65,7 @@ def main(import_path='/Users/aloncohen/Downloads/Home Assignment Data Scientist/
     if not os.path.exists(import_path):
         raise FileNotExists(f'it looks like the path you provided is not valid, path - {import_path}')
 
-    df = pd.read_json(import_path)  # check if term in title
+    df = pd.read_json(import_path)  # load data
     df['timestamp'] = pd.to_datetime(df['time'], unit='s')
     df['month'] = df['timestamp'].dt.month
 
@@ -78,9 +78,9 @@ def main(import_path='/Users/aloncohen/Downloads/Home Assignment Data Scientist/
     df = df.merge(bow_df, left_index=True, right_index=True, how='left')
     df[TECH_LIST] = df[TECH_LIST].fillna(0)
 
-    final_df = calc_term_prob(df)
+    articles_count_df, terms_count_df, terms_share_df, prob_df = calc_terms_dfs(df)
 
-    return final_df
+    return articles_count_df, terms_count_df, terms_share_df, prob_df
 
 
 if __name__ == '__main__':
