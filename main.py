@@ -1,6 +1,6 @@
 import logging
 from get_hn_data import main as run_get_hn_articles
-from calc_tech_rpobability import main as run_get_tech_prob, TECH_LIST
+from calc_tech_probability import main as run_get_tech_prob, TECH_LIST
 from pprint import pprint
 
 MONTH_DICT = {1: 'Jan 2021', 2: 'Feb 2021', 3: 'March 2021', 4: 'Apr 2021', 5: 'May 2021'}
