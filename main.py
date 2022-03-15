@@ -1,6 +1,7 @@
 import logging
 from get_hn_data import main as run_get_hn_articles
 from calc_tech_probability import main as run_get_tech_prob, TECH_LIST
+from correlator import main as run_correlator
 from pprint import pprint
 
 MONTH_DICT = {1: 'Jan 2021', 2: 'Feb 2021', 3: 'March 2021', 4: 'Apr 2021', 5: 'May 2021'}
@@ -50,10 +51,11 @@ def main():
             """what would you like to do:
             to get Hacker News top 40 articles - press 1
             to calculate the probability of tech to appear in future Hacker News - press 2
-            to analyze correlation (proximity to 8PM Vs. # of comments) - press 3
-            to quit - press 4""")
+            to get probabilities table of Hacker News - press 3
+            to analyze correlation (proximity to 8PM Vs. # of comments) - press 4
+            to quit - press 5""")
 
-        if user_input not in ['1', '2', '3', '4']:
+        if user_input not in ['1', '2', '3', '4', '5']:
             print(f'Oops {user_input} is not an option, please select option between 1-4')
 
         else:
@@ -88,16 +90,27 @@ def main():
                 pass
 
             try:
-                articles_count_df, terms_count_df, terms_share_df, prob_df = run_get_tech_prob(data_path)
+                articles_count_df, terms_count_df, terms_share_df, _ = run_get_tech_prob(data_path)
                 get_prob_calculation_string(articles_count_df, terms_count_df, terms_share_df, month, tech)
             except Exception as e:
-                    print(f'Failed to calculate probabilities df, reason - {e}')
+                    print(f'Failed to calculate probabilities, reason - {e}')
 
         if user_input == '3':
-            print('Ok, bye bye!')
-            run_program = False
+            data_path = input('please provide full path to your hacker_news_data.json file')
+            try:
+                _, _, _, prob_df = run_get_tech_prob(data_path)
+                print(prob_df.to_string())
+            except Exception as e:
+                print(f'Failed to run , reason - {e}')
 
         if user_input == '4':
+            data_path = input('please provide full path to your hacker_news_data.json file')
+            try:
+                run_correlator(data_path)
+            except Exception as e:
+                print(f'Failed to run correlator, reason - {e}')
+
+        if user_input == '5':
             print('Ok, bye bye!')
             run_program = False
 
