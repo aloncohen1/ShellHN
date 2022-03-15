@@ -75,25 +75,26 @@ def main():
             pprint(list(zip(range(len(TECH_LIST)), TECH_LIST)))
             tech = input('select technology:')
 
-            if int(tech) not in range(len(TECH_LIST)):
-                print(f'Oops {tech} is not an option, please select option between 1-{len(TECH_LIST)}')
-                pass
+            if tech in [str(i) for i in range(len(TECH_LIST))]:
 
-            month = input("""select month:
-            1 - use Jan 2021 to predict Feb 2021
-            2 - use Feb 2021 to predict March 2021
-            3 - use March 2021 to predict Apr 2021
-            4 - use Apr 2021 to predict May 2021 (note: partial month)""")
+                month = input("""select month:
+                1 - use Jan 2021 to predict Feb 2021
+                2 - use Feb 2021 to predict March 2021
+                3 - use March 2021 to predict Apr 2021
+                4 - use Apr 2021 to predict May 2021 (note: partial month)""")
 
-            if month not in ['1', '2', '3', '4']:
-                print(f'Oops {month} is not an option, please select option between 1-4')
-                pass
+                if month in ['1', '2', '3', '4']:
 
-            try:
-                articles_count_df, terms_count_df, terms_share_df, _ = run_get_tech_prob(data_path)
-                get_prob_calculation_string(articles_count_df, terms_count_df, terms_share_df, month, tech)
-            except Exception as e:
-                    print(f'Failed to calculate probabilities, reason - {e}')
+                    try:
+                        articles_count_df, terms_count_df, terms_share_df, _ = run_get_tech_prob(data_path)
+                        get_prob_calculation_string(articles_count_df, terms_count_df, terms_share_df, month, tech)
+                    except Exception as e:
+                        print(f'Failed to calculate probabilities, reason - {e}')
+                else:
+                    print(f'Oops {month} is not an option, please select month between 1-4')
+
+            else:
+                print(f'Oops {tech} is not an option, please select tech between 1-{len(TECH_LIST)-1}')
 
         if user_input == '3':
             data_path = input('please provide full path to your hacker_news_data.json file')
