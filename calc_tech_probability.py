@@ -2,6 +2,7 @@ import fire
 import pandas as pd
 import os
 from sklearn.feature_extraction.text import CountVectorizer
+from typing import Tuple
 
 import logging
 
@@ -9,10 +10,16 @@ TECH_LIST = ["kubernetes", "linux", "windows", "solarwinds", "garmin", "aws", "d
 
 
 class FileNotExists(Exception):
-  pass
+    pass
 
 
-def get_terms_bow(tech_df):
+def get_terms_bow(tech_df: pd.DataFrame) -> pd.DataFrame:
+
+    """
+    this function will calculate bag of words and filter it to the TECH_LIST only
+    :param tech_df: df filtered to titles contains tech string
+    :return: bow_df
+    """
 
     logging.info('get_terms_bow - START')
 
@@ -34,41 +41,43 @@ def get_terms_bow(tech_df):
     return bow_df
 
 
-def calc_terms_dfs(df):
+def calc_terms_dfs(df: pd.DataFrame) -> Tuple[pd.DataFrame, pd.DataFrame, pd.DataFrame, pd.DataFrame]:
 
     """
-
+    This function will calculate term count, term share, total article count per month & tech
     :param df: original df with terms columns
     :return:
     """
 
     logging.info('calc_term_prob - START')
 
-    articles_count_df = df.groupby('month')[TECH_LIST].count()
-    terms_count_df = df.groupby('month')[TECH_LIST].sum()
-    terms_share_df = terms_count_df / articles_count_df
-    prob_df = 1.0 - (1.0-terms_share_df).pow(articles_count_df)
+    articles_count_df = df.groupby('month')[TECH_LIST].count()  # total article count per month & tech
+    terms_count_df = df.groupby('month')[TECH_LIST].sum()  # total term count per month & tech
+    terms_share_df = terms_count_df / articles_count_df  # term share per month & tech
+    prob_df = 1.0 - (1.0-terms_share_df).pow(articles_count_df)  # term prob per month & tech
 
     logging.info('calc_term_prob - END')
 
     return articles_count_df, terms_count_df, terms_share_df, prob_df
 
 
-def main(import_path):
+def main(import_path: str) -> Tuple[pd.DataFrame, pd.DataFrame, pd.DataFrame, pd.DataFrame]:
 
     """
     This code will predict the probability of a technology to appear in HN
     :param import_path: path to assignment json file of past (hacker_news_data.json)
-    :return:
+    :return: articles_count_df, terms_count_df, terms_share_df, prob_df
     """
 
     if not os.path.exists(import_path):
         raise FileNotExists(f'it looks like the path you provided is not valid, path - {import_path}')
 
+    logging.info('read data')
     df = pd.read_json(import_path)  # load data
     df['timestamp'] = pd.to_datetime(df['time'], unit='s')
     df['month'] = df['timestamp'].dt.month
 
+    logging.info('search for substrings in titles')
     df['contains_tech'] = df.title.str.lower().str.contains('|'.join(TECH_LIST)).fillna(False)  # check if term in title
 
     tech_df = df[df['contains_tech']]  # filter to articles contains at least one term
