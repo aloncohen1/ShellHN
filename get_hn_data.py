@@ -40,6 +40,12 @@ def get_records_metadata(article_metadata: list) -> Tuple[str, str, str]:
 
 
 def scrape_hn_news(p: int = 1) -> pd.DataFrame:
+    """
+    Function that scrape the Hacker News home page and get it's articles
+    * currently not so stable
+    :param p: Hacker News home page (1,2,3...)
+    :return:
+    """
     logging.info(f'scrape_hn_news page: {p} - START')
 
     hn_homepage = requests.get(f"{HN_HOME_PATH}?p={p}")
@@ -139,7 +145,7 @@ def main(method: str = "api") -> pd.DataFrame:
 
     method = method.lower()
 
-    assert method in ['api', "scraping"], f"Oops, method must be 'api' OR 'scraping', received %s {method}"
+    assert method in ['api', "scraping"], f"Oops, method must be 'api' OR 'scraping', received {method}"
 
     if method == 'scraping':
         df1 = scrape_hn_news(p=1)  # scrape page 1
